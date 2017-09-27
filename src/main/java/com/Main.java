@@ -15,6 +15,8 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -31,8 +33,12 @@ class Main {
 
         @Override
         public void onPublish(InterceptPublishMessage msg) {
-            System.out.println(
-                    "Received on topic: " + msg.getTopicName() + " content: " + new String(msg.getPayload().array()));
+//            System.out.println(
+//                    "Received on topic: " + msg.getTopicName() + " content: " + new String(msg.getPayload().array()));
+        System.out.println("topicName : " + msg.getTopicName().toString());
+
+
+            System.out.println(StandardCharsets.UTF_8.decode(msg.getPayload().nioBuffer()).toString());
         }
     }
 
@@ -59,7 +65,10 @@ class Main {
 
         List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
         mqttBroker.startServer(configProps);
-        //mqttBroker.
+
+        for (int i=0; i<userHandlers.size(); i++) {
+            mqttBroker.addInterceptHandler(userHandlers.get(0));
+        }
 
 //        System.out.println("Broker started press [CTRL+C] to stop");
 //        //Bind  a shutdown hook
